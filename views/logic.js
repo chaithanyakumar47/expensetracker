@@ -12,7 +12,8 @@ async function userSignup(event) {
     console.log(userData);
     
     try {
-        await axios.post('http://localhost:3000/user/signup',userData);
+        const data = await axios.post('http://localhost:3000/user/signup',userData);
+        console.log(data.data);
 
     } catch(err) {
         console.log(err);

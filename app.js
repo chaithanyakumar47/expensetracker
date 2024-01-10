@@ -15,12 +15,21 @@ app.post('/user/signup', async (req, res, next) => {
         const username = req.body.username;
         const email = req.body.email;
         const password = req.body.password;
-        const data = await User.create( { username: username, email: email, password: password });
-        res.status(201).json({reviewDetail: data});
+        const emailData = await User.findAll({ where: { email: email}});
+        // if(emailData.length < 1){
+            // const data = await User.create( { username: username, email: email, password: password });
+            // res.status(201).json({reviewDetail: data});
+        // } else{
+        //     const status = "Email Already Resgistered";
+        //     res.json({details: status});
+        // }
+            const data = await User.create( { username: username, email: email, password: password });
+            res.status(201).json({reviewDetail: data});
+
         
         
     } catch(err) {
-        res.status(500).json({ err: err});
+        res.json({ err: err});
     }
 });
 
