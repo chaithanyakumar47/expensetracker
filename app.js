@@ -15,17 +15,9 @@ app.post('/user/signup', async (req, res, next) => {
         const username = req.body.username;
         const email = req.body.email;
         const password = req.body.password;
-        const emailData = await User.findAll({ where: { email: email}});
-        // if(emailData.length < 1){
-            // const data = await User.create( { username: username, email: email, password: password });
-            // res.status(201).json({reviewDetail: data});
-        // } else{
-        //     const status = "Email Already Resgistered";
-        //     res.json({details: status});
-        // }
-            const data = await User.create( { username: username, email: email, password: password });
-            // res.status(201).json({reviewDetail: data});
-            res.status(201)
+        const data = await User.create( { username: username, email: email, password: password });
+        // res.status(201).json({reviewDetail: data});
+        res.status(201)
         
         
     } catch(err) {
@@ -37,9 +29,20 @@ app.post('/user/login', async (req, res, next) => {
     try{
         const email = req.body.email;
         const password = req.body.password;
-        const check = await User.findAll({ where : {email: email, password: password}});
-        res.json({check: check});
-    } catch(err) {
+        const emailCheck = await User.findAll({ where : {email: email}});
+        if (emailCheck.length > 0){
+            const passCheck = await User.findAll({ where: { email: email, password: password}});
+            if(passCheck.length > 0) {
+                res.json({message: 'Logged in'});
+            } else{
+                res.json({message: 'User not authorized'});
+            }
+        }else {
+            res.json({message: 'User does not exist'})
+        }
+        
+    } 
+    catch(err) {
         res.status(404).json({err: err});
     }    
 })

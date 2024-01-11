@@ -40,11 +40,7 @@ async function userSignin(event) {
     
     try {
         const data = await axios.post('http://localhost:3000/user/login',userData);
-        if(data.data.check.length < 1) {
-            window.alert('User does not exist')
-        }else {
-            window.alert('Logged in successfully!!');
-        }
+        window.alert(`${data.data.message}`);
 
 
     } catch(err) {
