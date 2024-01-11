@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 var cors = require('cors');
+const bcrypt = require('bcrypt');
 app.use(cors());
 
 const sequelize = require('./util/database');
@@ -15,9 +16,12 @@ app.post('/user/signup', async (req, res, next) => {
         const username = req.body.username;
         const email = req.body.email;
         const password = req.body.password;
-        const data = await User.create( { username: username, email: email, password: password });
-        // res.status(201).json({reviewDetail: data});
-        res.status(201)
+        bcrypt.hash(password, 10, async(err, hash) => {
+            console.log(err);
+            const data = await User.create( { username: username, email: email, password: hash });
+            res.status(201);
+        })
+
         
         
     } catch(err) {
@@ -31,14 +35,19 @@ app.post('/user/login', async (req, res, next) => {
         const password = req.body.password;
         const emailCheck = await User.findAll({ where : {email: email}});
         if (emailCheck.length > 0){
-            const passCheck = await User.findAll({ where: { email: email, password: password}});
-            if(passCheck.length > 0) {
-                res.json({message: 'Logged in'});
-            } else{
-                res.json({message: 'User not authorized'});
-            }
+            bcrypt.compare(password, emailCheck[0].password, (err, result) => {
+                if(err) {
+                    throw new Error('Something went wrong')
+                }
+                if(result === true) {
+                    res.status(200).json({message: 'Logged in Successfully'});
+                }
+                else {
+                    return res.status(400).json({message: 'Password is incorrect'})
+                }
+            })
         }else {
-            res.json({message: 'User does not exist'})
+            res.status(404).json({message: 'User does not exist'})
         }
         
     } 
