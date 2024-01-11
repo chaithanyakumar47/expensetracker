@@ -24,14 +24,25 @@ app.post('/user/signup', async (req, res, next) => {
         //     res.json({details: status});
         // }
             const data = await User.create( { username: username, email: email, password: password });
-            res.status(201).json({reviewDetail: data});
-
+            // res.status(201).json({reviewDetail: data});
+            res.status(201)
         
         
     } catch(err) {
-        res.json({ err: err});
+        res.status(403).json({ err: err});
     }
 });
+
+app.post('/user/login', async (req, res, next) => {
+    try{
+        const email = req.body.email;
+        const password = req.body.password;
+        const check = await User.findAll({ where : {email: email, password: password}});
+        res.json({check: check});
+    } catch(err) {
+        res.status(404).json({err: err});
+    }    
+})
 
 
 

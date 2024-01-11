@@ -9,14 +9,47 @@ async function userSignup(event) {
         email,
         password
     };
-    console.log(userData);
+    // console.log(userData);
     
     try {
         const data = await axios.post('http://localhost:3000/user/signup',userData);
-        console.log(data.data);
+        // console.log(data.data);
+
+
+    } catch(err) {
+        // console.log(err.message);
+        const parent = document.getElementById('error');
+        const child = `${err.message}`;
+        parent.innerHTML = parent.innerHTML + child;
+
+    }
+
+}
+
+async function userSignin(event) {
+    event.preventDefault();
+
+    const email = event.target.email.value;
+    const password = event.target.password.value;
+
+    const userData = {
+        email,
+        password
+    };
+    // console.log(userData);
+    
+    try {
+        const data = await axios.post('http://localhost:3000/user/login',userData);
+        if(data.data.check.length < 1) {
+            window.alert('User does not exist')
+        }else {
+            window.alert('Logged in successfully!!');
+        }
+
 
     } catch(err) {
         console.log(err);
-    }
 
+
+    }
 }

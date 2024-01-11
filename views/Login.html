@@ -55,12 +55,8 @@ button:hover {
 </head>
 <body>
     
-    <form onsubmit="userSignup(event)" method="POST">
+    <form onsubmit="userSignin(event)" method="POST">
         <table>
-            <tr>
-                <td><label for="username">Name:</label></td>
-                <td><input type="text" name="username" required></td>
-            </tr>
             <tr>
                 <td><label for="email">Email:</label></td>
                 <td><input type="email" name="email" required></td>
@@ -70,7 +66,15 @@ button:hover {
                 <td><input type="password" name="password"></td>
             </tr>
             <tr>
-                <td colspan="2"><button type="submit">SignUp</button></td>
+                <td colspan="2"><button type="submit">Sign In</button></td>
+            </tr>
+            <tr><td>
+                <a href="Signup.html">New User?</a>
+            </td></tr>
+            <tr>
+              <td>
+                <p id="error"></p>
+              </td>
             </tr>
         </table>
     </form>
