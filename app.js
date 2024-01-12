@@ -7,6 +7,7 @@ app.use(cors());
 
 const sequelize = require('./util/database');
 const User = require('./models/User')
+const Expense = require('./models/Expenses');
 
 
 app.use(bodyParser.json({ extended: false}));
@@ -40,14 +41,14 @@ app.post('/user/login', async (req, res, next) => {
                     throw new Error('Something went wrong')
                 }
                 if(result === true) {
-                    res.status(200).json({message: 'Logged in Successfully'});
+                    res.status(200).json({ status: true, message: 'Logged in Successfully'});
                 }
                 else {
-                    return res.status(400).json({message: 'Password is incorrect'})
+                    return res.status(400).json({ status: false, message: 'Password is incorrect'})
                 }
             })
         }else {
-            res.status(404).json({message: 'User does not exist'})
+            res.status(404).json({ status: false, message: 'User does not exist'})
         }
         
     } 
@@ -56,6 +57,42 @@ app.post('/user/login', async (req, res, next) => {
     }    
 })
 
+app.post('/expense/addExpense', async (req, res) => {
+    try{
+        const description = req.body.description;
+        const amount = req.body.amount;
+        const category = req.body.category
+        const details = await Expense.create({ description: description, amount: amount, category: category});
+        res.status(201).json(details)
+    } catch (err) {
+        res.json(err);
+    }
+})
+
+app.get('/expense/getExpense', async (req, res) => {
+    try {
+        const data = await Expense.findAll();
+        res.json(data);
+    } catch(err) {
+        res.json(err);
+    }
+})
+
+app.delete('/expense/deleteExpense/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        await Expense.destroy({
+            where : {
+                id: id
+            }
+        })
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+// User.hasMany(Expense);
+// Expense.belongsTo(User);
 
 
 sequelize
