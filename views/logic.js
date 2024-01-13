@@ -44,6 +44,7 @@ async function userSignin(event) {
             const a = document.getElementById('expense');
             a.setAttribute('href','Expense.html');
             a.textContent = 'Add/Check Expenses'
+            localStorage.setItem('token', data.data.token);
         }
 
 
@@ -67,8 +68,8 @@ async function addExpense(event) {
     }
     
     try {
-   
-        const data =  await axios.post('http://localhost:3000/expense/addExpense', expenseData);
+        const token = localStorage.getItem('token');
+        const data =  await axios.post('http://localhost:3000/expense/addExpense',expenseData, { headers: { 'Authorization': token }});
         getExpenses(data.data)
         
     } catch (err) {
@@ -78,29 +79,32 @@ async function addExpense(event) {
 
 }
 
-async function deleteExpense(expenseId) {
-    try {
+ async function deleteExpense(expenseId) {
+try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:3000/expense/deleteExpense/${expenseId}`,{ headers: { 'Authorization': token }});
         const parent = document.getElementById('expenses');
         const child = document.getElementById(expenseId);
         parent.removeChild(child);
-        await axios.delete(`http://localhost:3000/expense/deleteExpense/${expenseId}`);
+        console.log("Deleted");
 
-    } catch (err) {
-        console.log(err)
+        } catch (err) {
+            console.log(err);
+        }
     }
-}
 
 
 function getExpenses(expense) {
     const parent = document.getElementById('expenses');
-    const child = `<li id = ${expense.id}> ${expense.description} - ${expense.amount} - ${expense.category}  <button onclick = deleteExpense(${expense.id})>Delete</button></li>`;
+    const child = `<li id = '${expense.id}'> ${expense.description} - ${expense.amount} - ${expense.category}  <button onclick = deleteExpense(${expense.id})>Delete</button></li>`;
     parent.innerHTML = parent.innerHTML + child;
 }
 
 
 window.addEventListener("DOMContentLoaded", async () => {
     try{
-        data = await axios.get('http://localhost:3000/expense/getExpense')
+        const token = localStorage.getItem('token');
+        data = await axios.get('http://localhost:3000/expense/getExpense', { headers: { 'Authorization': token }})
         for (let i=0; i < data.data.length; i++) {
             getExpenses(data.data[i])
         }
