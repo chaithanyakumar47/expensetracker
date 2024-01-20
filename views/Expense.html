@@ -23,6 +23,17 @@ form {
   margin: 0 auto;
 }
 
+#premium-button {
+
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  
+  width: 500px;
+  margin: 0 auto;
+}
+
+
 label, input, textarea {
   display: block;
 }
@@ -93,10 +104,19 @@ button:hover {
         </table>
 
     </form>
+    <table id="premium-button">
+    <tr>
+      <!-- <td colspan="2"><button id="rzp-button1">Buy Premium</button></td>
+      <script src="https://checkout.razorpay.com/v1/checkout.js"></script> -->
+  </tr>
+  </table>
+  <button id="rzp-button1">Pay Now</button>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <ul id="expenses">
 
     </ul>
 </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
 <script src="logic.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+
 </html>
