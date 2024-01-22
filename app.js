@@ -36,7 +36,7 @@ app.post('/user/signup', async (req, res, next) => {
         const password = req.body.password;
         bcrypt.hash(password, 10, async(err, hash) => {
             console.log(err);
-            const data = await User.create( { username: username, email: email, password: hash });
+            const data = await User.create( { username: username, email: email, password: hash, isPremium: false, totalExpenses: 0 });
             res.status(201).json(data);
         })
 
@@ -80,7 +80,11 @@ app.post('/expense/addExpense', userAuthentication.authenticate, async (req, res
         const amount = req.body.amount;
         const category = req.body.category
         const userId = req.user.id
+        const currentExpense = req.user.totalExpenses
+        const updatedExpense = currentExpense + parseInt(amount)
+        
         const details = await Expense.create({ description: description, amount: amount, category: category, userId: userId});
+        const test = await req.user.update({ totalExpenses: updatedExpense})
         res.status(201).json(details)
     } catch (err) {
         res.json(err);
@@ -199,7 +203,7 @@ app.get('/checkPremium', statusCheck.authenticate, async(req, res) => {
 app.get('/premium/showLeaderboard', userAuthentication.authenticate, async (req, res) =>{
     try {
         const leaderboardofusers = await User.findAll({
-            attributes: ['id', 'username',[sequelize.fn('sum', sequelize.col('expenses.amount')), 'total_cost'] ],
+            attributes: ['id', 'username', 'totalExpenses' ],
             include: [
                 {
                     model: Expense,
@@ -207,7 +211,7 @@ app.get('/premium/showLeaderboard', userAuthentication.authenticate, async (req,
                 }
             ],
             group: ['user.id'],
-            order: [['total_cost', 'DESC']]
+            order: [['totalExpenses', 'DESC']]
         })
         res.status(200).json(leaderboardofusers)
     } catch (err) {
