@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 var cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const jwtDecode = require('jwt-decode');
 const Razorpay = require('razorpay');
 app.use(cors());
 
@@ -12,13 +13,21 @@ const User = require('./models/User')
 const Expense = require('./models/Expenses');
 const Order = require('./models/orders');
 const userAuthentication = require('./middleware/auth')
+const statusCheck = require('./middleware/statusCheck');
 
 
 app.use(bodyParser.json({ extended: false}));
 
-function generateAccessToken(id, name) {
-    return jwt.sign({ userId: id, name: name }, 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcwNTEzOTk0OSwiaWF0IjoxNzA1MTM5OTQ5fQ.u17qfbQbdIbKM0Cw4yx_qqxu_SyYWNaFsN5ia1tsOdc')
+function generateAccessToken(id, name, premiumRequest) {
+    if (!premiumRequest){
+        return jwt.sign({ userId: id, name: name }, 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcwNTEzOTk0OSwiaWF0IjoxNzA1MTM5OTQ5fQ.u17qfbQbdIbKM0Cw4yx_qqxu_SyYWNaFsN5ia1tsOdc')
+    } else {
+        return jwt.sign({ userId: id, name: name, premiumUser: true }, 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcwNTEzOTk0OSwiaWF0IjoxNzA1MTM5OTQ5fQ.u17qfbQbdIbKM0Cw4yx_qqxu_SyYWNaFsN5ia1tsOdc')
+    }
+    
+    
 }
+
 
 app.post('/user/signup', async (req, res, next) => {
     try{
@@ -28,7 +37,7 @@ app.post('/user/signup', async (req, res, next) => {
         bcrypt.hash(password, 10, async(err, hash) => {
             console.log(err);
             const data = await User.create( { username: username, email: email, password: hash });
-            res.status(201);
+            res.status(201).json(data);
         })
 
         
@@ -49,7 +58,7 @@ app.post('/user/login', async (req, res, next) => {
                     throw new Error('Something went wrong')
                 }
                 if(result === true) {
-                    res.status(200).json({ status: true, message: 'Logged in Successfully', token: generateAccessToken(emailCheck[0].id, emailCheck[0].username)});
+                    res.status(200).json({ status: true, message: 'Logged in Successfully', token: generateAccessToken(emailCheck[0].id, emailCheck[0].username, false)});
                 }
                 else {
                     return res.status(400).json({ status: false, message: 'Password is incorrect'})
@@ -161,6 +170,49 @@ app.post('/purchase/failedTransaction', userAuthentication.authenticate, async(r
     } catch (err) {
         console.log(err);
          
+    }
+})
+
+app.get('/setPremium', userAuthentication.authenticate, async(req, res) => {
+    try {
+        const userId = req.userId;
+        const name = req.name;
+        const token = generateAccessToken(userId, name, true);
+        res.status(201).json({ token: token});
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+app.get('/checkPremium', statusCheck.authenticate, async(req, res) => {
+    try {
+        if (req.status === true) {
+            res.status(200).json({ success: true})
+        } else {
+            res.status(200).json({ success: false})
+        }
+    } catch (err) {
+        console.log(err);
+    }
+})
+
+app.get('/premium/showLeaderboard', userAuthentication.authenticate, async (req, res) =>{
+    try {
+        const leaderboardofusers = await User.findAll({
+            attributes: ['id', 'username',[sequelize.fn('sum', sequelize.col('expenses.amount')), 'total_cost'] ],
+            include: [
+                {
+                    model: Expense,
+                    attributes: []
+                }
+            ],
+            group: ['user.id'],
+            order: [['total_cost', 'DESC']]
+        })
+        res.status(200).json(leaderboardofusers)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json(err)
     }
 })
 

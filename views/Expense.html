@@ -17,7 +17,7 @@ h1 {
 form {
   background-color: #fff;
   padding: 20px;
-  border-radius: 5px;
+  
   
   width: 500px;
   margin: 0 auto;
@@ -27,11 +27,12 @@ form {
 
   background-color: #fff;
   padding: 20px;
-  border-radius: 5px;
+  
   
   width: 500px;
   margin: 0 auto;
 }
+
 
 
 label, input, textarea {
@@ -46,7 +47,7 @@ input, textarea {
   border-radius: 3px; 
 }
 
-button {
+#expense-button {
   background-color: #007bff;
   color: #fff;
   padding: 10px 15px;
@@ -55,7 +56,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+#expense-button:hover {
   background-color: #0062cc;
 }
 #expenses {
@@ -72,6 +73,27 @@ button:hover {
   margin-bottom: 10px;
 }
 
+#rzp-button1 {
+  background-color: #D2AF26;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  }
+
+  #leaderboardButton {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+#leaderboardButton:hover {
+  background-color: #0062cc;
+}
 
     </style>
 
@@ -99,20 +121,32 @@ button:hover {
                 </select>
             </tr>
             <tr>
-                <td colspan="2"><button type="submit">Add Expense</button></td>
+                <td colspan="2"><button type="submit" id="expense-button">Add Expense</button></td>
             </tr>
         </table>
 
     </form>
-    <table id="premium-button">
-    <tr>
-      <!-- <td colspan="2"><button id="rzp-button1">Buy Premium</button></td>
-      <script src="https://checkout.razorpay.com/v1/checkout.js"></script> -->
-  </tr>
-  </table>
-  <button id="rzp-button1">Pay Now</button>
+    <div id="premium-button">
+      <table>
+        <tr>
+          <td>
+            <div id="message"></div>
+            <span id="premium-section">
+              
+            <button id="rzp-button1">Buy Premium</button>
+            <!-- <button onclick="premiumUser()">Token Decode</button> -->
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <ul id="expenses">
+
+    </ul>
+    <ul id="leaderboard">
 
     </ul>
 </body>

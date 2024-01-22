@@ -16,6 +16,9 @@ async function userSignup(event) {
     try {
         const data = await axios.post('http://localhost:3000/user/signup',userData);
         // console.log(data.data);
+        console.log('before the alert')
+        alert(`Welcome ${username}!, Please Login`);
+        console.log('past the alert')
 
 
     } catch(err) {
@@ -110,6 +113,13 @@ window.addEventListener("DOMContentLoaded", async () => {
         for (let i=0; i < data.data.length; i++) {
             getExpenses(data.data[i])
         }
+        const flag = await checkPremium()
+        if (flag === true) {
+            document.getElementById('rzp-button1').style.visibility = "hidden";
+            const parent = document.getElementById('premium-section');
+            parent.innerHTML+=`You are a premium User`;
+            showLeaderboard()
+        }
     } catch (err) {
         console.log(err)
     }
@@ -125,6 +135,59 @@ async function transactionFail(order_id, payment_id) {
     } catch (err) {
         console.log(err)
     }    
+}
+
+ async function premiumUser() {
+    try {
+        const token = localStorage.getItem('token');
+        console.log(token)
+        const data = await axios.get('http://localhost:3000/setPremium', { headers: {"Authorization" : token} });
+        localStorage.setItem('token', data.data.token);
+        document.getElementById('rzp-button1').style.visibility = "hidden";
+        const parent = document.getElementById('premium-section');
+        parent.innerHTML+=`You are a premium User`;
+    }
+     catch (err) {
+        console.log(err)
+     }
+}
+
+function showLeaderboard(){
+    const inputElement = document.createElement("input")
+    inputElement.type = "button"
+    inputElement.value = 'Show Leaderboard'
+    inputElement.setAttribute('id','leaderboardButton');
+    inputElement.onclick = async() => {
+        const token = localStorage.getItem('token')
+        const userLeaderBoardArray = await axios.get('http://localhost:3000/premium/showLeaderBoard', { headers: {"Authorization" : token} })
+        console.log(userLeaderBoardArray)
+
+        var leaderboardElem = document.getElementById('leaderboard')
+        leaderboardElem.innerHTML = "";
+        leaderboardElem.innerHTML += '<h1> Leader Board </<h1>'
+        userLeaderBoardArray.data.forEach((userDetails) => {
+            leaderboardElem.innerHTML += `<li>Name - ${userDetails.username} Total Expense - ${userDetails.total_cost || 0} </li>`
+        })
+    }
+    document.getElementById("message").appendChild(inputElement);
+
+}
+
+async function checkPremium()  {
+    try {
+        const token = localStorage.getItem('token');
+        const data = await axios.get('http://localhost:3000/checkPremium', { headers: {"Authorization" : token} });
+        console.log(data)
+        if (data.data.success === true) {
+            return true
+        }
+        else {
+            return false
+        }
+        console.log(data)
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 document.getElementById('rzp-button1').onclick = async function (e) {
@@ -144,7 +207,9 @@ document.getElementById('rzp-button1').onclick = async function (e) {
         
         console.log(res)
          alert('You are a Premium User Now')
-         document.getElementById('rzp-button1').style.visibility = "hidden"
+         
+         premiumUser()
+         showLeaderboard()
         },
 
     };

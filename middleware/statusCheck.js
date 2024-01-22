@@ -11,8 +11,17 @@ const authenticate = (req, res, next) => {
         req.name = user.name;
         User.findByPk(user.userId).then(user => {
             req.user = user;
-            next();
+            if(req.user.isPremium) {
+                req.status = true
+                next()
+            } else {
+                req.status = false
+                next()
+            }
+            
         }).catch(err => { throw new Error(err)})
+        
+
     } catch (err) {
         console.log(err);
         return res.status(401).json({ message: 'Failed to Authenticate'})
