@@ -6,6 +6,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const jwtDecode = require('jwt-decode');
 const Razorpay = require('razorpay');
+const Sib = require('sib-api-v3-sdk')
+const client = Sib.ApiClient.instance
+const apiKey = client.authentications['api-key']
+apiKey.apiKey = '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'
 app.use(cors());
 
 const sequelize = require('./util/database');
@@ -14,6 +18,7 @@ const Expense = require('./models/Expenses');
 const Order = require('./models/orders');
 const userAuthentication = require('./middleware/auth')
 const statusCheck = require('./middleware/statusCheck');
+require('dotenv').config()
 
 
 app.use(bodyParser.json({ extended: false}));
@@ -221,6 +226,30 @@ app.get('/premium/showLeaderboard', userAuthentication.authenticate, async (req,
         res.status(200).json(leaderboardofusers)
     } catch (err) {
         console.log(err)
+        res.status(500).json(err)
+    }
+})
+
+app.post('/password/forgotpassword', async(req, res) => {
+    try {
+        const tranEmailApi = new Sib.TransactionalEmailsApi()
+        const sender = {
+            email: 'kumarchaithanya.1@gmail.com'
+        }
+        const receivers = [
+            {
+                email: req.body.email
+            },
+        ]
+        const data = await tranEmailApi.sendTransacEmail({
+            sender,
+            to: receivers,
+            Subject: 'Link to Reset your Password',
+            textContent: `How can you forget your own password?`
+        })
+        res.status(200).json({ success: true})
+
+    } catch (err) {
         res.status(500).json(err)
     }
 })

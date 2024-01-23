@@ -55,27 +55,17 @@ button:hover {
 </head>
 <body>
     
-    <form onsubmit="userSignin(event)" method="POST">
+    <form onsubmit="forgotPassword(event)" method="POST">
         <table>
             <tr>
                 <td><label for="email">Email:</label></td>
                 <td><input type="email" name="email" required></td>
             </tr>
+
             <tr>
-                <td><label for="password">Password:</label></td>
-                <td><input type="password" name="password"></td>
+                <td colspan="2"><button type="submit">Confirm</button></td>
             </tr>
-            <tr>
-                <td colspan="2"><button type="submit">Sign In</button></td>
-            </tr>
-            <tr><td>
-              <a href="ForgotPass.html">Forgot Password?</a><br>
-          </td></tr>
-            <tr><td>
-                <a href="Signup.html">New User?</a><br>
-                <a id="expense"></a>
-            </td></tr>
-            <tr>
+
               <td>
                 <p id="error"></p>
               </td>
@@ -84,7 +74,7 @@ button:hover {
     </form>
 
 </body>
-<script src="Login.js"></script>
+<script src="ForgotPass.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
 </html>
