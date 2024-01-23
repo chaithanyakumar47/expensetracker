@@ -75,7 +75,9 @@ app.post('/user/login', async (req, res, next) => {
 })
 
 app.post('/expense/addExpense', userAuthentication.authenticate, async (req, res) => {
+    const t = await sequelize.transaction();
     try{
+        
         const description = req.body.description;
         const amount = req.body.amount;
         const category = req.body.category
@@ -83,10 +85,12 @@ app.post('/expense/addExpense', userAuthentication.authenticate, async (req, res
         const currentExpense = req.user.totalExpenses
         const updatedExpense = currentExpense + parseInt(amount)
         
-        const details = await Expense.create({ description: description, amount: amount, category: category, userId: userId});
-        const test = await req.user.update({ totalExpenses: updatedExpense})
+        const details = await Expense.create({ description: description, amount: amount, category: category, userId: userId}, { transaction: t});
+        const test = await req.user.update({ totalExpenses: updatedExpense}, { transaction: t })
+        await t.commit();
         res.status(201).json(details)
     } catch (err) {
+        await t.rollback();
         res.json(err);
     }
 })
@@ -103,17 +107,25 @@ app.get('/expense/getExpense', userAuthentication.authenticate, async (req, res)
 })
 
 app.delete('/expense/deleteExpense/:id', userAuthentication.authenticate, async (req, res) => {
+    const t = await sequelize.transaction()
     try {
         const userId = req.user.id
         const id = req.params.id;
-        await Expense.destroy({
-            where : {
-                id: id,
-                userId: userId
-            }
-        })
+        const expenseObj = await Expense.findOne({ where: { id: id, userId: userId}})
+        const expenseAmount = Number(expenseObj.amount)
+        console.log('Expense Amount >>>',expenseAmount)
+        const currentAmount = Number(req.user.totalExpenses)
+        console.log('Currrent Amount >>>',currentAmount)
+        const updatedExpense = currentAmount - expenseAmount
+        console.log('Updated Amount >>>',updatedExpense)
+        await expenseObj.destroy({transaction: t})
+        await req.user.update({totalExpenses: updatedExpense }, { transaction: t})
+        
+        await t.commit()
+        
         res.status(200).json({ message: 'Expense Deleted'});
     } catch (err) {
+        await t.rollback()
         res.status(500).json(err);
     }
 })
@@ -203,14 +215,7 @@ app.get('/checkPremium', statusCheck.authenticate, async(req, res) => {
 app.get('/premium/showLeaderboard', userAuthentication.authenticate, async (req, res) =>{
     try {
         const leaderboardofusers = await User.findAll({
-            attributes: ['id', 'username', 'totalExpenses' ],
-            include: [
-                {
-                    model: Expense,
-                    attributes: []
-                }
-            ],
-            group: ['user.id'],
+
             order: [['totalExpenses', 'DESC']]
         })
         res.status(200).json(leaderboardofusers)

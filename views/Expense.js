@@ -27,7 +27,8 @@ async function addExpense(event) {
  async function deleteExpense(expenseId) {
 try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:3000/expense/deleteExpense/${expenseId}`,{ headers: { 'Authorization': token }});
+        const data = await axios.delete(`http://localhost:3000/expense/deleteExpense/${expenseId}`,{ headers: { 'Authorization': token }});
+        console.log(data)
         const parent = document.getElementById('expenses');
         const child = document.getElementById(expenseId);
         parent.removeChild(child);
