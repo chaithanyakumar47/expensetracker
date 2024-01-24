@@ -9,16 +9,23 @@ const Razorpay = require('razorpay');
 const Sib = require('sib-api-v3-sdk')
 const client = Sib.ApiClient.instance
 const apiKey = client.authentications['api-key']
-apiKey.apiKey = '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'
+apiKey.apiKey = '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'
+const { v4: uuidv4 } = require('uuid');
+
 app.use(cors());
 
 const sequelize = require('./util/database');
 const User = require('./models/User')
+const ForgotPassword = require('./models/ForgotPasswordRequests')
 const Expense = require('./models/Expenses');
 const Order = require('./models/orders');
 const userAuthentication = require('./middleware/auth')
 const statusCheck = require('./middleware/statusCheck');
 require('dotenv').config()
+
+const rootDir = require('../User Signup/util/path');
+const path = require('path');
+
 
 
 app.use(bodyParser.json({ extended: false}));
@@ -230,8 +237,12 @@ app.get('/premium/showLeaderboard', userAuthentication.authenticate, async (req,
     }
 })
 
-app.post('/password/forgotpassword', async(req, res) => {
+app.post('/password/forgotpassword',userAuthentication.authenticate, async(req, res) => {
+    const uuid =  uuidv4()
     try {
+        
+        console.log('Inside the Backend API USER ID >>>',req.user.id)
+        const details = await ForgotPassword.create({ id: uuid, isactive: true, userId: req.user.id})
         const tranEmailApi = new Sib.TransactionalEmailsApi()
         const sender = {
             email: 'kumarchaithanya.1@gmail.com'
@@ -245,7 +256,7 @@ app.post('/password/forgotpassword', async(req, res) => {
             sender,
             to: receivers,
             Subject: 'Link to Reset your Password',
-            textContent: `How can you forget your own password?`
+            textContent: `http://localhost:3000/password/resetpassword/${uuid}`
         })
         res.status(200).json({ success: true})
 
@@ -254,11 +265,56 @@ app.post('/password/forgotpassword', async(req, res) => {
     }
 })
 
+app.get('/password/resetpassword/:uuid', async(req, res) => {
+    try {
+        const uuid = req.params.uuid;
+        const data = await ForgotPassword.findOne({ where: { id: uuid}})
+        
+        if (data.isactive === true) {
+            // res.sendFile(path.join(rootDir, 'views','Recovery.html'))
+            console.log('WORKS')
+            res.send(`<html><script>
+            function formsubmitted(e){
+                e.preventDefault();
+                console.log('called')
+            }
+        </script><form action="/password/updatepassword/${uuid}"><label for="newpassword">Enter New Password</label><input type="password" name="newpassword" required></input><button>Reset Password</button></form></html>`)
+            res.end()
+            
+        }
+    } catch (err) {
+        res.status(500).json(err)
+    }
+})
+
+app.get('/password/updatepassword/:id', async (req, res) => {
+    try {
+    
+    const newPassword = req.query.newpassword;
+    const id = req.params.id;
+    bcrypt.hash(newPassword, 10, async(err, hash) => {
+        console.log(err);
+        const forgotPass = await ForgotPassword.findOne({ where:{id: id }});
+        await forgotPass.update({ isactive: false})
+        await User.update( { password: hash},{ where: { id: forgotPass.userId}} );
+        
+        res.status(201).json({success: true});
+    })
+    } catch (err) {
+        res.status(500).json(err)
+    }
+
+
+})
+
 User.hasMany(Expense);
 Expense.belongsTo(User);
 
 User.hasMany(Order);
 Order.belongsTo(User);
+
+User.hasMany(ForgotPassword)
+
 
 
 sequelize
@@ -266,3 +322,4 @@ sequelize
 .then(result => {
     app.listen(3000);
 }).catch(err => console.log(err));
+

@@ -6,7 +6,8 @@ async function forgotPassword(event) {
     }
 
     try {
-        const data = await axios.post('http://localhost:3000/password/forgotpassword',userData);
+        const token = localStorage.getItem('token')
+        const data = await axios.post('http://localhost:3000/password/forgotpassword',userData, { headers: { 'Authorization': token }});
         if(data.data.success === true) {
             const message = document.getElementById('error');
             message.innerHTML = ''

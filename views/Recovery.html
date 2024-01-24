@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Reviews</title>
+    <style>
+        body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;  
+}
+
+h1 {
+  color: #333;
+}
+
+form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  
+  width: 500px;
+  margin: 0 auto;
+}
+
+label, input, textarea {
+  display: block;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px; 
+  border: 1px solid #ddd;
+  border-radius: 3px; 
+}
+
+button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0062cc;
+}
+
+
+
+    </style>
+
+</head>
+<body>
+    
+    <form onsubmit="resetPassword(event)" method="POST">
+        <table>
+          <tr>
+            <td><label for="email">Email:</label></td>
+            <td><input type="email" name="email" required></td>
+        </tr>
+            <tr>
+                <td><label for="password">Enter New Password:</label></td>
+                <td><input type="password" name="password" required></td>
+            </tr>
+
+            <tr>
+                <td colspan="2"><button type="submit">Confirm</button></td>
+            </tr>
+
+              <td>
+                <p id="error"></p>
+              </td>
+            </tr>
+        </table>
+    </form>
+
+</body>
+<script>
+  async function resetPassword(event) {
+    event.preventDefault()
+    const email = event.target.email.value
+    const password = event.target.password.value;
+    const userData = {
+        email,
+        password
+    }
+    try {
+        
+        const data = await axios.post('http://localhost:3000/password/newpassword', userData)
+        console.log(data)
+        if (data.data.success === true) {
+          const message = document.getElementById('error')
+          message.innerHTML = ''
+          message.innerHTML+= `Password Reset Successful`
+        }
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+</html>
