@@ -2,14 +2,18 @@
 
 async function addExpense(event) {
     event.preventDefault();
+    const date = new Date()
     const description = event.target.description.value;
     const amount = event.target.amount.value;
-    const category = event.target.category.value
+    const category = event.target.category.value;
+    const income = event.target.income.value;
     
     const expenseData = {
+        date,
         description,
         amount,
-        category
+        category,
+        income
     }
     
     try {
@@ -41,9 +45,22 @@ try {
 
 
 function getExpenses(expense) {
+    const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+    const d = new Date();
+    let name = month[d.getMonth()];
     const parent = document.getElementById('expenses');
-    const child = `<li id = '${expense.id}'> ${expense.description} - ${expense.amount} - ${expense.category}  <button onclick = deleteExpense(${expense.id})>Delete</button></li>`;
-    parent.innerHTML = parent.innerHTML + child;
+    const test = new Date(expense.date)
+    const onlyDate = new Date(expense.date).toISOString().split('T')[0];
+    console.log(month[test.getMonth()])
+    if (expense.amount > 0) {
+        const child = `<li id = '${expense.id}'> ${onlyDate} - ${expense.description} - ${expense.amount} - ${expense.category}   <button onclick = deleteExpense(${expense.id})>Delete</button></li>`;
+        parent.innerHTML = parent.innerHTML + child;
+    } else {
+        const child = `<li id = '${expense.id}'>${onlyDate} Income - ${expense.income}<button onclick = deleteExpense(${expense.id})>Delete</button></li>`;
+        parent.innerHTML = parent.innerHTML + child;
+    }
+        
 }
 
 
@@ -51,6 +68,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     try{
         const token = localStorage.getItem('token');
         data = await axios.get('http://localhost:3000/expense/getExpense', { headers: { 'Authorization': token }})
+        console.log(data)
         for (let i=0; i < data.data.length; i++) {
             getExpenses(data.data[i])
         }

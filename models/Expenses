@@ -9,13 +9,16 @@ const Expense = sequelize.define('expense', {
         allowNull: false,
         primaryKey: true
     },
+    date: Sequelize.DATE,
     description: Sequelize.STRING,
     amount: {
         type: Sequelize.INTEGER,
         allowNull: false
     },
 
-    category: Sequelize.STRING
+    category: Sequelize.STRING,
+    income: Sequelize.INTEGER
+    
 
 
 });

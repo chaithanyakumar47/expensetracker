@@ -89,18 +89,30 @@ app.post('/user/login', async (req, res, next) => {
 app.post('/expense/addExpense', userAuthentication.authenticate, async (req, res) => {
     const t = await sequelize.transaction();
     try{
-        
+        const date = req.body.date;
         const description = req.body.description;
         const amount = req.body.amount;
         const category = req.body.category
+        const income = req.body.income
         const userId = req.user.id
+        const currentIncome = req.user.totalIncome;
+        const updatedIncome = currentIncome + parseInt(income)
         const currentExpense = req.user.totalExpenses
         const updatedExpense = currentExpense + parseInt(amount)
+        if (description){
+            const details = await Expense.create({ date: date, description: description, amount: amount, category: category, income: income, userId: userId}, { transaction: t});
+            const test = await req.user.update({ totalExpenses: updatedExpense}, { transaction: t })
+            await t.commit();
+            res.status(201).json(details)
+        } else {
+            const details = await Expense.create({ date: date, description: null, amount: 0, category: null, income: income, userId: userId}, { transaction: t});
+            const test = await req.user.update({ totalIncome: updatedIncome}, { transaction: t })
+            await t.commit();
+            res.status(201).json(details)
+        }
         
-        const details = await Expense.create({ description: description, amount: amount, category: category, userId: userId}, { transaction: t});
-        const test = await req.user.update({ totalExpenses: updatedExpense}, { transaction: t })
-        await t.commit();
-        res.status(201).json(details)
+        
+
     } catch (err) {
         await t.rollback();
         res.json(err);
@@ -281,6 +293,9 @@ app.get('/password/resetpassword/:uuid', async(req, res) => {
         </script><form action="/password/updatepassword/${uuid}"><label for="newpassword">Enter New Password</label><input type="password" name="newpassword" required></input><button>Reset Password</button></form></html>`)
             res.end()
             
+        } else {
+            res.send('<h1>Please generate a new Link<h1>')
+            res.end()
         }
     } catch (err) {
         res.status(500).json(err)
