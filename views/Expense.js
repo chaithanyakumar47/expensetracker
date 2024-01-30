@@ -100,7 +100,7 @@ async function transactionFail(order_id, payment_id) {
     try {
         const token = localStorage.getItem('token');
         console.log(token)
-        const data = await axios.get('http://localhost:3000/setPremium', { headers: {"Authorization" : token} });
+        const data = await axios.get('http://localhost:3000/premium/setPremium', { headers: {"Authorization" : token} });
         localStorage.setItem('token', data.data.token);
         document.getElementById('rzp-button1').style.visibility = "hidden";
         const parent = document.getElementById('premium-section');
@@ -135,7 +135,7 @@ function showLeaderboard(){
 async function checkPremium()  {
     try {
         const token = localStorage.getItem('token');
-        const data = await axios.get('http://localhost:3000/checkPremium', { headers: {"Authorization" : token} });
+        const data = await axios.get('http://localhost:3000/premium/checkPremium', { headers: {"Authorization" : token} });
         console.log(data)
         if (data.data.success === true) {
             return true
