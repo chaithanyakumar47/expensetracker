@@ -1,4 +1,9 @@
 const Expense = require('../models/Expenses');
+const Downloads = require('../models/downloads');
+const sequelize = require('../util/database');
+const AWS = require('aws-sdk');
+const Userservices = require('../services/userservices');
+const S3services = require('../services/S3services');
 
 
 const addExpense = async (req, res) => {
@@ -69,8 +74,59 @@ const deleteExpense = async (req, res) => {
     }
 }
 
+
+const download = async (req, res) => {
+    try {
+
+        const expenses = await Userservices.getExpenses(req);
+        const stringifiedExpenses = JSON.stringify(expenses)
+
+        const userId = req.user.id;
+
+        const filename = `Expenses${userId}/${new Date()}.txt`;
+        const fileInfo = await S3services.uploadToS3(stringifiedExpenses, filename);
+        const fileUrl = fileInfo.Location
+        res.status(200).json({ fileUrl, fileInfo: fileInfo})
+        saveDownloads(fileInfo, userId)
+    } catch (err) {
+        console.log(err);
+        res.status(500).json( { fileUrl: '', success: false, err: err})
+    }
+}
+
+async function saveDownloads(fileInfo, userId)  {
+    const t = await sequelize.transaction();
+    try {
+
+        const longname = fileInfo.Key;
+        let startIndex = longname.indexOf('/') + 1;
+        let endIndex = longname.lastIndexOf(')') + 1;
+        const name = longname.substring(startIndex, endIndex);
+        const url = fileInfo.Location;
+        
+        
+        const details = await Downloads.create({ name: name, url: url, userId: userId}, { transaction: t});
+        await t.commit();
+    } catch (err) {
+        console.log(err)
+        await t.rollback();
+    }
+}
+
+const getDownloads = async (req, res) => {
+    try {
+        const data = await req.user.getDownloads();
+        res.status(200).json(data);
+    } catch (err) {
+        res.status(500).json({ err: err})
+    }
+
+}
+
 module.exports = {
     addExpense,
     getExpense,
-    deleteExpense
+    deleteExpense,
+    download,
+    getDownloads
 }

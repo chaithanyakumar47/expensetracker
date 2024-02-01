@@ -1,5 +1,6 @@
 
 
+
 async function addExpense(event) {
     event.preventDefault();
     const date = new Date()
@@ -63,6 +64,23 @@ function getExpenses(expense) {
         
 }
 
+async function getDownloads() {
+    try {
+        const token = localStorage.getItem('token')
+        const parent = document.getElementById('downloads');
+        const data = await axios.get('http://localhost:3000/expense/getDownloads', { headers: { 'Authorization': token }});
+        parent.innerHTML = ''
+        for (let i = 0; i < data.data.length; i++) {
+            const child = `<li>${data.data[i].name} - <a href="${data.data[i].url}">Download</a>`
+            parent.innerHTML+= child;
+        }
+    } catch (err) {
+        console.log(err)
+    }
+
+    
+}
+
 
 window.addEventListener("DOMContentLoaded", async () => {
     try{
@@ -72,6 +90,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         for (let i=0; i < data.data.length; i++) {
             getExpenses(data.data[i])
         }
+        
         const flag = await checkPremium()
         if (flag === true) {
             document.getElementById('rzp-button1').style.visibility = "hidden";
@@ -79,6 +98,7 @@ window.addEventListener("DOMContentLoaded", async () => {
             parent.innerHTML+=`You are a premium User`;
             showLeaderboard()
         }
+        getDownloads()
     } catch (err) {
         console.log(err)
     }
@@ -182,4 +202,27 @@ document.getElementById('rzp-button1').onclick = async function (e) {
         alert('Something went wrong')
         
     });
+}
+
+async function download() {
+    try {
+        const token = localStorage.getItem('token')
+        const response = await axios.get('http://localhost:3000/expense/download',  { headers: {"Authorization" : token} })
+        console.log(response)
+
+        if(response.status == 200) {
+        var a = document.createElement('a');
+        a.href = response.data.fileUrl;
+        a.download = 'myexpense.csv';
+        a.click()
+
+
+        
+    } else {
+        throw new Error(response.data.message);
+    }
+} catch (err) {
+    console.log(err)
+}
+
 }

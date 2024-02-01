@@ -95,6 +95,19 @@ input, textarea {
   background-color: #0062cc;
 }
 
+#downloadExpense {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+#downloadExpense:hover {
+  background-color: #0062cc;
+}
+
     </style>
 
 </head>
@@ -140,8 +153,13 @@ input, textarea {
             <button id="rzp-button1">Buy Premium</button>
             <!-- <button onclick="premiumUser()">Token Decode</button> -->
             </span>
+            
           </td>
+
         </tr>
+        <tr><td>
+          <button onclick="download()" id="downloadExpense">Download File</button>
+        </td></tr>
       </table>
     </div>
 
@@ -152,6 +170,11 @@ input, textarea {
     </ul>
     <ul id="leaderboard">
 
+    </ul>
+    <h2>Download History</h2>
+    <ul id="downloads">
+
+      
     </ul>
 </body>
 <script src="Expense.js"></script>

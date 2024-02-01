@@ -1,7 +1,8 @@
 const Sib = require('sib-api-v3-sdk')
 const client = Sib.ApiClient.instance
 const apiKey = client.authentications['api-key']
-apiKey.apiKey = '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'
+require('dotenv').config();
+apiKey.apiKey = process.env.CLIENT_API_KEY;
 const { v4: uuidv4 } = require('uuid');
 
 const bcrypt = require('bcrypt');
