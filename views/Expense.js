@@ -51,17 +51,71 @@ function getExpenses(expense) {
     const d = new Date();
     let name = month[d.getMonth()];
     const parent = document.getElementById('expenses');
-    const test = new Date(expense.date)
-    const onlyDate = new Date(expense.date).toISOString().split('T')[0];
-    console.log(month[test.getMonth()])
-    if (expense.amount > 0) {
-        const child = `<li id = '${expense.id}'> ${onlyDate} - ${expense.description} - ${expense.amount} - ${expense.category}   <button onclick = deleteExpense(${expense.id})>Delete</button></li>`;
-        parent.innerHTML = parent.innerHTML + child;
-    } else {
-        const child = `<li id = '${expense.id}'>${onlyDate} Income - ${expense.income}<button onclick = deleteExpense(${expense.id})>Delete</button></li>`;
-        parent.innerHTML = parent.innerHTML + child;
+    parent.innerHTML = ''
+    for( let i = 0; i < expense.length; i++){
+
+        const test = new Date(expense[i].date)
+        const onlyDate = new Date(expense[i].date).toISOString().split('T')[0];
+        console.log(month[test.getMonth()])
+        
+        if (expense[i].amount > 0) {
+            const child = `<li id = '${expense[i].id}'> ${onlyDate} - ${expense[i].description} - ${expense[i].amount} - ${expense[i].category}   <button onclick = deleteExpense(${expense[i].id})>Delete</button></li>`;
+            // parent.innerHTML = parent.innerHTML + child;
+            parent.innerHTML+=child
+        } else {
+            const child = `<li id = '${expense[i].id}'>${onlyDate} Income - ${expense[i].income}<button onclick = deleteExpense(${expense[i].id})>Delete</button></li>`;
+            // parent.innerHTML = parent.innerHTML + child;
+            parent.innerHTML+=child
+        }
     }
         
+}
+function showPagination(pageData) {
+    
+    currentPage = pageData.currentPage
+    hasNexPage = pageData.hasNexPage
+    nextPage = pageData.nextPage
+    hasPreviousPage = pageData.hasPreviousPage
+    previousPage = pageData.previousPage
+    lastPage = pageData.lastPage
+    
+
+    const pagination = document.getElementById('container');
+    pagination.innerHTML = ''
+    if (hasPreviousPage) {
+        const btn2 = document.createElement('button');
+        btn2.innerHTML = previousPage
+        btn2.addEventListener('click', () => limitedExpenses(previousPage))
+        pagination.appendChild(btn2)
+    }
+        const btn1 = document.createElement('button');
+        btn1.innerHTML = `<h3>${currentPage}</h3>`
+        btn1.addEventListener('click', () => limitedExpenses(currentPage))
+        pagination.appendChild(btn1)
+
+    if (hasNexPage) {
+        const btn3 = document.createElement('button')
+        btn3.innerHTML = nextPage
+        btn3.addEventListener('click', () => limitedExpenses(nextPage))
+        pagination.appendChild(btn3)
+    }
+
+    
+}
+
+function limitedExpenses(page) {
+
+    const token = localStorage.getItem('token');
+    axios
+    .get(`http://localhost:3000/expense/getExpense?page=${page}`,  { headers: { 'Authorization': token }})
+    .then((res) => {
+    
+        getExpenses(res.data.expenses);
+        showPagination(res.data)
+        
+    })
+    .catch()
+
 }
 
 async function getDownloads() {
@@ -84,12 +138,17 @@ async function getDownloads() {
 
 window.addEventListener("DOMContentLoaded", async () => {
     try{
+        const objUrlParams = new URLSearchParams(window.location.search);
+        const page = objUrlParams.get("page") || 1;
         const token = localStorage.getItem('token');
-        data = await axios.get('http://localhost:3000/expense/getExpense', { headers: { 'Authorization': token }})
-        console.log(data)
-        for (let i=0; i < data.data.length; i++) {
-            getExpenses(data.data[i])
-        }
+        data = await axios.get(`http://localhost:3000/expense/getExpense?page=${page}`, { headers: { 'Authorization': token }})
+        console.log('data >>',data)
+        
+       
+        getExpenses(data.data.expenses)
+        
+        console.log('data.data >>', data.data)
+        showPagination(data.data)
         
         const flag = await checkPremium()
         if (flag === true) {

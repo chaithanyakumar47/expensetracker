@@ -38,12 +38,32 @@ const addExpense = async (req, res) => {
         res.json(err);
     }
 }
+const ITEMS_PER_PAGE = 2;
 
 const getExpense = async (req, res) => {
     try {
         // const data = await Expense.findAll({ where: { userId: req.user.id}});
-        const data = await req.user.getExpenses();
-        res.status(200).json(data);
+        const page = +req.query.page || 1;
+        let totalItems;
+        total = await Expense.count()
+        totalItems = total
+        // products.findAll({
+        //     offset: (page - 1) * ITEMS_PER_PAGE,
+        //     limit: ITEMS_PER_PAGE
+        // })
+        const data = await req.user.getExpenses( {
+            offset: (page - 1) * ITEMS_PER_PAGE,
+            limit: ITEMS_PER_PAGE
+        });
+        res.status(200).json({
+            expenses: data,
+            currentPage: page,
+            hasNexPage: ITEMS_PER_PAGE * page < totalItems,
+            nextPage: page + 1,
+            hasPreviousPage: page > 1,
+            previousPage: page - 1,
+            lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+        });
     } catch(err) {
         res.json(err);
         console.log(err)
