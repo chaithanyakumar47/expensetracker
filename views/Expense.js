@@ -8,6 +8,9 @@ async function addExpense(event) {
     const amount = event.target.amount.value;
     const category = event.target.category.value;
     const income = event.target.income.value;
+    const rows = event.target.rows.value;
+
+    localStorage.setItem('rows', rows);
     
     const expenseData = {
         date,
@@ -106,8 +109,9 @@ function showPagination(pageData) {
 function limitedExpenses(page) {
 
     const token = localStorage.getItem('token');
+    const rows = localStorage.getItem('rows')
     axios
-    .get(`http://localhost:3000/expense/getExpense?page=${page}`,  { headers: { 'Authorization': token }})
+    .get(`http://localhost:3000/expense/getExpense?page=${page}`,  { headers: { 'Authorization': token, 'rows': rows }})
     .then((res) => {
     
         getExpenses(res.data.expenses);
@@ -141,7 +145,8 @@ window.addEventListener("DOMContentLoaded", async () => {
         const objUrlParams = new URLSearchParams(window.location.search);
         const page = objUrlParams.get("page") || 1;
         const token = localStorage.getItem('token');
-        data = await axios.get(`http://localhost:3000/expense/getExpense?page=${page}`, { headers: { 'Authorization': token }})
+        const rows = localStorage.getItem('rows')
+        data = await axios.get(`http://localhost:3000/expense/getExpense?page=${page}`, { headers: { 'Authorization': token, 'rows': rows }})
         console.log('data >>',data)
         
        

@@ -38,11 +38,12 @@ const addExpense = async (req, res) => {
         res.json(err);
     }
 }
-const ITEMS_PER_PAGE = 2;
+
 
 const getExpense = async (req, res) => {
     try {
         // const data = await Expense.findAll({ where: { userId: req.user.id}});
+        const ITEMS_PER_PAGE = parseInt(req.header('rows')) || 2
         const page = +req.query.page || 1;
         let totalItems;
         total = await Expense.count()
