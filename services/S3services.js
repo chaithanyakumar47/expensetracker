@@ -1,9 +1,8 @@
 const AWS = require('aws-sdk');
-require('dotenv').config({
-    path: `${__dirname}/.env`})
+
 
 const  uploadToS3 = (data, filename) => {
-    console.log(typeof process.env.BUCKET_NAME)
+    
     const BUCKET_NAME = process.env.BUCKET_NAME;
     const IAM_USER_KEY = process.env.IAM_USER_KEY;
     const IAM_USER_SECRET = process.env.IAM_USER_SECRET;
