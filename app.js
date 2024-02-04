@@ -6,6 +6,7 @@ const path = require('path')
 const fs = require('fs')
 const helmet = require('helmet');
 const morgan = require('morgan')
+const https = require('https');
 
 
 const sequelize = require('./util/database');
@@ -21,6 +22,9 @@ const expenseRoutes = require('./Routes/expense');
 const purchaseRoutes = require('./Routes/purchase');
 const premiumRoutes = require('./Routes/premium');
 const passwordRoutes = require('./Routes/password');
+
+// const privateKey = fs.readFileSync('server.key');
+// const certificate = fs.readFileSync('server.cert');
 
 const accessLogStream = fs.createWriteStream(
     path.join(__dirname, 'access.log'), { flags: 'a'});
