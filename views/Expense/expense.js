@@ -22,7 +22,7 @@ async function addExpense(event) {
     
     try {
         const token = localStorage.getItem('token');
-        const data =  await axios.post('http://localhost:3000/expense/addExpense',expenseData, { headers: { 'Authorization': token }});
+        const data =  await axios.post('http://15.207.107.209:3000/expense/addExpense',expenseData, { headers: { 'Authorization': token }});
         getExpenses(data.data)
         
     } catch (err) {
@@ -35,7 +35,7 @@ async function addExpense(event) {
  async function deleteExpense(expenseId) {
 try {
         const token = localStorage.getItem('token');
-        const data = await axios.delete(`http://localhost:3000/expense/deleteExpense/${expenseId}`,{ headers: { 'Authorization': token }});
+        const data = await axios.delete(`http://15.207.107.209:3000/expense/deleteExpense/${expenseId}`,{ headers: { 'Authorization': token }});
         console.log(data)
         const parent = document.getElementById('expenses');
         const child = document.getElementById(expenseId);
@@ -111,7 +111,7 @@ function limitedExpenses(page) {
     const token = localStorage.getItem('token');
     const rows = localStorage.getItem('rows')
     axios
-    .get(`http://localhost:3000/expense/getExpense?page=${page}`,  { headers: { 'Authorization': token, 'rows': rows }})
+    .get(`http://15.207.107.209:3000/expense/getExpense?page=${page}`,  { headers: { 'Authorization': token, 'rows': rows }})
     .then((res) => {
     
         getExpenses(res.data.expenses);
@@ -126,7 +126,7 @@ async function getDownloads() {
     try {
         const token = localStorage.getItem('token')
         const parent = document.getElementById('downloads');
-        const data = await axios.get('http://localhost:3000/expense/getDownloads', { headers: { 'Authorization': token }});
+        const data = await axios.get('http://15.207.107.209:3000/expense/getDownloads', { headers: { 'Authorization': token }});
         parent.innerHTML = ''
         for (let i = 0; i < data.data.length; i++) {
             const child = `<li>${data.data[i].name} - <a href="${data.data[i].url}">Download</a>`
@@ -146,7 +146,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         const page = objUrlParams.get("page") || 1;
         const token = localStorage.getItem('token');
         const rows = localStorage.getItem('rows')
-        data = await axios.get(`http://localhost:3000/expense/getExpense?page=${page}`, { headers: { 'Authorization': token, 'rows': rows }})
+        data = await axios.get(`http://15.207.107.209:3000/expense/getExpense?page=${page}`, { headers: { 'Authorization': token, 'rows': rows }})
         console.log('data >>',data)
         
        
@@ -171,7 +171,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 async function transactionFail(order_id, payment_id) {
     try {
         const token = localStorage.getItem('token');
-        const res = await axios.post('http://localhost:3000/purchase/failedTransaction', {
+        const res = await axios.post('http://15.207.107.209:3000:/purchase/failedTransaction', {
             order_id: order_id,
             payment_id: payment_id,
         }, { headers: { 'Authorization': token } })
@@ -184,7 +184,7 @@ async function transactionFail(order_id, payment_id) {
     try {
         const token = localStorage.getItem('token');
         console.log(token)
-        const data = await axios.get('http://localhost:3000/premium/setPremium', { headers: {"Authorization" : token} });
+        const data = await axios.get('http://15.207.107.209:3000/premium/setPremium', { headers: {"Authorization" : token} });
         localStorage.setItem('token', data.data.token);
         document.getElementById('rzp-button1').style.visibility = "hidden";
         const parent = document.getElementById('premium-section');
@@ -202,7 +202,7 @@ function showLeaderboard(){
     inputElement.setAttribute('id','leaderboardButton');
     inputElement.onclick = async() => {
         const token = localStorage.getItem('token')
-        const userLeaderBoardArray = await axios.get('http://localhost:3000/premium/showLeaderBoard', { headers: {"Authorization" : token} })
+        const userLeaderBoardArray = await axios.get('http://15.207.107.209:3000/premium/showLeaderBoard', { headers: {"Authorization" : token} })
         console.log(userLeaderBoardArray)
 
         var leaderboardElem = document.getElementById('leaderboard')
@@ -219,7 +219,7 @@ function showLeaderboard(){
 async function checkPremium()  {
     try {
         const token = localStorage.getItem('token');
-        const data = await axios.get('http://localhost:3000/premium/checkPremium', { headers: {"Authorization" : token} });
+        const data = await axios.get('http://15.207.107.209:3000/premium/checkPremium', { headers: {"Authorization" : token} });
         console.log(data)
         if (data.data.success === true) {
             return true
@@ -235,7 +235,7 @@ async function checkPremium()  {
 
 document.getElementById('rzp-button1').onclick = async function (e) {
     const token = localStorage.getItem('token')
-    const response  = await axios.get('http://localhost:3000/purchase/premiummembership', { headers: {"Authorization" : token} });
+    const response  = await axios.get('http://15.207.107.209:3000/purchase/premiummembership', { headers: {"Authorization" : token} });
     console.log(response);
     var options =
     {
@@ -243,7 +243,7 @@ document.getElementById('rzp-button1').onclick = async function (e) {
      "order_id": response.data.order.id,// For one time payment
      // This handler function will handle the success payment
      "handler": async function (response) {
-        const res = await axios.post('http://localhost:3000/purchase/updatetransactionstatus',{
+        const res = await axios.post('http://15.207.107.209:3000/purchase/updatetransactionstatus',{
              order_id: options.order_id,
              payment_id: response.razorpay_payment_id,
          }, { headers: {"Authorization" : token} })
@@ -271,7 +271,7 @@ document.getElementById('rzp-button1').onclick = async function (e) {
 async function download() {
     try {
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:3000/expense/download',  { headers: {"Authorization" : token} })
+        const response = await axios.get('http://15.207.107.209:3000/expense/download',  { headers: {"Authorization" : token} })
         console.log(response)
 
         if(response.status == 200) {

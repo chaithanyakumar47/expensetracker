@@ -14,10 +14,11 @@ async function userSignup(event) {
     // console.log(userData);
     
     try {
-        const data = await axios.post('http://localhost:3000/user/signup',userData);
+        const data = await axios.post('http://15.207.107.209:3000/user/signup',userData);
         // console.log(data.data);
         console.log('before the alert')
-        alert(`Welcome ${username}!, Please Login`);
+        // alert(`Welcome ${username}!, Please Login`);
+        window.location.href = '../Login/login.html'
         console.log('past the alert')
 
 
