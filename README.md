@@ -19,6 +19,20 @@ An efficient and secure web application for managing personal finances.
 - Cloud Services: Amazon S3 for file storage
 - Payment Integration: Razorpay
 - Email Service: Brevo (formerly SendInBlue)
+
+
+## Screenshots
+
+- Home 
+  ![Home Page](screenshots/home/home.png)
+- Signup
+  ![Login Page](screenshots/signup/signup.png)
+- Login
+  ![Login Page](screenshots/login/login.png)
+- Expenses
+  ![Expense Page](screenshots/expenses/expenses.png)
+
+
 ## Run Locally
 
 Clone the project
